@@ -1,5 +1,5 @@
 # ray_matrix_abcd_python
-small snipper to get the abcd matrices
+This is a code to get the ray abcd matrices.
 The content is based on the book FUNDAMENTALS OF PHOTONICS 
 BAHAA E. A. SALEH.
 
