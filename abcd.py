@@ -11,7 +11,7 @@ def lens_thin(f):
         focal length of lens where f > 0 for convex/positive (converging) lens.
         Only valid if the focal length is much greater than the thickness of the lens. 
     """
-    m = [[1,0],[-1/f,0]]
+    m = [[1,0],[-1/f,1]]
     return bd.array(m)
 
 def lens_thick(n1, n2, r1, r2, t):
@@ -82,7 +82,7 @@ def curved_interface(Re):
     return bd.array(m)
 
 
-def get_new_q(q, m):
+def get_new_q(q, m, inverce = False):
     """
     Returns the new q parmeter of the gaussian beam 
     acording to the ABCD matrix and the corrent q parameter.
@@ -97,6 +97,8 @@ def get_new_q(q, m):
         The q parameter of the gaussian beam.
     m : 2 * 2 matrix
         the abcd matrix.
+    inverce : bool, optional
+        it true the inverce value would be calculated
     Returns
     ----
     qt : complex
@@ -106,44 +108,49 @@ def get_new_q(q, m):
     B = m[0][1]
     C = m[1][0]
     D = m[1][1]
-
-    qt = ((A * q + B) / (C * q + D))
+    if not inverce:
+        qt = ((A * q + B) / (C * q + D))
+    else:
+        qt = ((C + D / q) / (A + B / q))
     return qt
 
-def get_gaussian_beams_Z0(wavelength, w0)->float:
-    """
-    Retuns Rayleigh range for a given wave lenght acording to the beam's waist 
-    as in the equetion (3.1-11) from the book FUNDAMENTALS OF PHOTONICS 
-    BAHAA E. A. SALEH.
+def get_gaussian_beams_W0(wavelength :float, z0:float, n = 1.)->float:
+  """
+  Retuns W0 for a given wave lenght 
+  as in Yariv, Amnon (1989). Quantum Electronics (3rd ed.). Wiley. ISBN 0-471-60997-8.
 
-    Parameters:
-    ----------
-        wavelength : float
-        Wave lenght of the beam
-        w0 : float, optional
-        The beam's waist radius. 
-    Retuns:
-    ------
-        Z0 : float
-        The Rayleigh range as in the equetion. 
-    """
-    return  w0**2 / (pi * wavelength)
+  Parameters:
+  ----------
+    wavelength : float
+      Wave length of the beam
+    z0 : float, optional
+      Rayleigh range of the gaussian beams. 
+    n : float, optional
+      Index of refraction, defualt n = 1.
+  Retuns:
+  ------
+    W0 : float
+      W0 as in the equetion (the beam's waist radius). 
+  """
+  return  bd.sqrt(((wavelength / n) * z0 )/ pi)
 
-def get_gaussian_beams_W0(wavelength :float, z0:float)->float:
-    """
-    Retuns W0 for a given wave lenght 
-    as the equetion (3.1-11) from the book FUNDAMENTALS OF PHOTONICS 
-    BAHAA E. A. SALEH.
 
-    Parameters:
-    ----------
-        wavelength : float
-        Wave length of the beam
-        z0 : float, optional
-        Rayleigh range of the gaussian beams. 
-    Retuns:
-    ------
-        W0 : float
-        W0 as in the equetion (the beam's waist radius). 
-    """
-    return  bd.sqrt((wavelength * z0 )/ pi)
+def get_gaussian_beams_Z0(wavelength :float, w0:float, n = 1.)->float:
+  """
+  Retuns Rayleigh range for a given wave lenght acording to the beam's waist 
+  as in Yariv, Amnon (1989). Quantum Electronics (3rd ed.). Wiley. ISBN 0-471-60997-8.
+
+  Parameters:
+  ----------
+    wavelength : float
+      Wave lenght of the beam
+    w0 : float, optional
+      The beam's waist radius. 
+    n : float, optional
+      Index of refraction, defualt n = 1.
+  Retuns:
+  ------
+    Z0 : float
+      The Rayleigh range as in the equetion. 
+  """
+  return  (w0**2 * pi) / ((wavelength / n))
